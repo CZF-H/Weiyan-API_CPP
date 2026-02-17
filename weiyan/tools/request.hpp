@@ -406,7 +406,7 @@ namespace Weiyan {
             PostAdapter.SetOpt(CURLOPT_TIMEOUT, 15L);
 
             curl_slist* slist = nullptr;
-            slist = curl_slist_append(slist, "application/x-www-form-urlencoded");
+            slist = curl_slist_append(slist, "Content-Type: application/x-www-form-urlencoded");
             PostAdapter.SetOpt(CURLOPT_HTTPHEADER, slist);
 
             PostAdapter.SetOpt(CURLOPT_POST, 1L);
