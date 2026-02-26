@@ -8,7 +8,7 @@
 + https://github.com/curl/curl
 + https://github.com/openssl/openssl
 
-### 项目遵循Apache-2.0协议，详见 LICENSE_CN.md
+### 项目遵循GPL-3.0协议，详见 LICENSE
 
 **特点：**
 
