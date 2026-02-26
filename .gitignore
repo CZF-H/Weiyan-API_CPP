@@ -20,5 +20,4 @@ build*/
 *.swp
 *~
 
-cpptest/
-CMakeLists.txt
+localtest
