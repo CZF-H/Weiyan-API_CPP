@@ -34,6 +34,14 @@ namespace Weiyan {
     public:
         json data;
 
+        Context& Ctx() const {
+            return mCtx;
+        }
+
+        Notice& Self() {
+            return *this;
+        }
+
         /**
          * 公告对象，用于获取公告
          * @param ctx 上下文共享智能指针类
@@ -48,18 +56,19 @@ namespace Weiyan {
          * @return 响应的json解密数据
          */
         json& Get() {
-            const std::string res =
-                request::post(
-                    mCtx->API(),
-                    URL::Params(
-                        {
-                            {"id", "notice"},
-                            {"app", mCtx->appID()}
-                        }
+            const json_result j{
+                mCtx->RC4.Dec(
+                    request::post(
+                        mCtx->API(),
+                        URL::Params(
+                            {
+                                {"id", "notice"},
+                                {"app", mCtx->appID()}
+                            }
+                        )
                     )
-                );
-
-            const json_result j{mCtx->RC4.Dec(res)};
+                )
+            };
 
             if (j)
                 data = *j;

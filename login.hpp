@@ -48,6 +48,14 @@ namespace Weiyan {
     public:
         json data;
 
+        Context& Ctx() const {
+            return mCtx;
+        }
+
+        Login& Self() {
+            return *this;
+        }
+
         /**
          * 登录对象，用于卡密登录
          * @param ctx 上下文共享智能指针类
@@ -83,31 +91,32 @@ namespace Weiyan {
                 return std::to_string(dis(gen));
             }();
 
-            const std::string PostData = mCtx->RC4.Enc(
+            std::string PostData = mCtx->RC4.Enc(
                 URL::Fields(
                     {
                         {"kami", key},
                         {"markcode", deviceid},
-                        {"t", time},
-                        {"sign", sign},
-                        {"value", value}
+                        {"t", std::move(time)},
+                        {"sign", std::move(sign)},
+                        {"value", std::move(value)}
                     }
                 )
             );
 
-            const std::string res =
-                request::post(
-                    mCtx->API(),
-                    URL::Params(
-                        {
-                            {"id", "kmlogon"},
-                            {"app", mCtx->appID()},
-                            {"data", PostData}
-                        }
+            const json_result j{
+                mCtx->RC4.Dec(
+                    request::post(
+                        mCtx->API(),
+                        URL::Params(
+                            {
+                                {"id", "kmlogon"},
+                                {"app", mCtx->appID()},
+                                {"data", std::move(PostData)}
+                            }
+                        )
                     )
-                );
-
-            const json_result j{mCtx->RC4.Dec(res)};
+                )
+            };
 
             if (j) {
                 data = *j;
@@ -115,7 +124,7 @@ namespace Weiyan {
                 auto code = data["code"].get<int>();
 
                 auto GetStatusMessage = [&code, this](const json& j_) {
-                    static std::unordered_map<int, std::string> msg_map = {
+                    static const std::unordered_map<int, std::string> msg_map = {
                             {this->mSuccess_code, "登录成功"},
                             {100, "未绑定应用 ID"},
                             {102, "应用已关闭"},

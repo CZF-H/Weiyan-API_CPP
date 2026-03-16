@@ -36,6 +36,14 @@ namespace Weiyan {
     public:
         json data;
 
+        Context& Ctx() const {
+            return mCtx;
+        }
+
+        Unbind& Self() {
+            return *this;
+        }
+
         /**
          * 解绑对象，用于卡密解绑
          * @param ctx 上下文共享智能指针类
@@ -63,30 +71,31 @@ namespace Weiyan {
                 return md5(ss.str());
             }();
 
-            const std::string PostData = mCtx->RC4.Enc(
+            std::string PostData = mCtx->RC4.Enc(
                 URL::Fields(
                     {
                         {"kami", key},
                         {"markcode", deviceid},
-                        {"t", time},
-                        {"sign", sign}
+                        {"t", std::move(time)},
+                        {"sign", std::move(sign)}
                     }
                 )
             );
 
-            const std::string res =
-                request::post(
-                    mCtx->API(),
-                    URL::Params(
-                        {
-                            {"id", "kmdismiss"},
-                            {"app", mCtx->appID()},
-                            {"data", PostData}
-                        }
+            const json_result j{
+                mCtx->RC4.Dec(
+                    request::post(
+                        mCtx->API(),
+                        URL::Params(
+                            {
+                                {"id", "kmdismiss"},
+                                {"app", mCtx->appID()},
+                                {"data", std::move(PostData)}
+                            }
+                        )
                     )
-                );
-
-            const json_result j{mCtx->RC4.Dec(res)};
+                )
+            };
 
             if (j)
                 data = *j;
@@ -99,7 +108,7 @@ namespace Weiyan {
          * @return 解绑状态
          */
         bool success() const {
-            return code() == 200;;
+            return code() == 200;
         }
 
         /**

@@ -172,13 +172,13 @@ namespace Weiyan {
                 result.clear();
             }
 
-            auto& Get(const std::string& url, const std::string& param = {}) {
+            std::string& Get(const std::string& url, const std::string& param = {}) {
                 Clear();
                 ToDoGet(url + param);
                 return result;
             }
 
-            auto& Post(const std::string& url, const std::string& param = {}) {
+            std::string& Post(const std::string& url, const std::string& param = {}) {
                 Clear();
                 ToDoPost(url + param);
                 return result;
